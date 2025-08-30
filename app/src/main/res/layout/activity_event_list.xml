@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.EventListActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/secondary95"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="0dp">
+
+    <TextView
+        android:id="@+id/calendar_mode"
+        style="@style/GrayTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/calendar_view_text"
+        android:textSize="20dp"
+        android:gravity="start"
+        android:layout_gravity="start"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"/>
+        <TextView
+            android:id="@+id/event_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:text="@string/toolbar_event"
+            android:textSize="20sp"
+            />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/settings_but"
+        android:src="@drawable/icons8_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="TODO"
+        android:gravity="end"
+        android:layout_gravity="end"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginVertical="10dp"
+        app:layout_constraintRight_toLeftOf="@id/add_event_but"
+        android:layout_marginRight="10dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_event_but"
+        android:src="@drawable/icons8_add_2"
+        app:maxImageSize="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:gravity="end"
+        android:layout_gravity="end"
+
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginVertical="10dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginEnd="10dp"/>
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/container_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginVertical="100dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/bg_container"/>
+
+    <Button
+        android:id="@+id/today_event_but"
+        android:text="@string/today_butt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintEnd_toStartOf="@id/users_event_but"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@drawable/button_style"
+        app:backgroundTint="@color/defaultColor"/>
+
+    <Button
+        android:id="@+id/users_event_but"
+        android:text="@string/my_events_butt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintEnd_toStartOf="@id/rooms_but"
+        app:layout_constraintStart_toEndOf="@id/today_event_but"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@drawable/button_style"
+        app:backgroundTint="@color/defaultColor"
+        />
+
+    <Button
+        android:id="@+id/rooms_but"
+        android:text="@string/room_butt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/users_event_but"
+        android:background="@drawable/button_style"
+        app:backgroundTint="@color/defaultColor"
+        />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

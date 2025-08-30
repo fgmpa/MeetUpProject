@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <TextView
+        android:id="@+id/app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MeetRoom"
+        android:textSize="40dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guide_line1"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.14"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_line4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.86"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_line1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".40" />
+    <TextView
+        android:id="@+id/log_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="Логин"
+        app:layout_constraintBottom_toTopOf="@id/login_edit"
+        app:layout_constraintLeft_toRightOf="@id/guide_line"
+        app:layout_constraintTop_toBottomOf="@id/guide_line1"
+        />
+
+    <EditText
+        android:id="@+id/login_edit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_style"
+        app:layout_constraintEnd_toStartOf="@+id/guide_line4"
+        app:layout_constraintStart_toEndOf="@id/guide_line"
+        app:layout_constraintTop_toBottomOf="@id/log_text" />
+
+    <TextView
+        android:id="@+id/passwd_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="Пароль"
+        app:layout_constraintLeft_toRightOf="@id/guide_line"
+        app:layout_constraintTop_toBottomOf="@id/login_edit"
+        app:layout_constraintBottom_toTopOf="@id/password_edit"
+        />
+
+    <EditText
+        android:id="@+id/password_edit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_style"
+        android:inputType="textPassword"
+        app:layout_constraintEnd_toStartOf="@+id/guide_line4"
+        app:layout_constraintStart_toEndOf="@id/guide_line"
+        app:layout_constraintTop_toBottomOf="@id/passwd_text" />
+    <Button
+        android:id="@+id/log_but"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/password_edit"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="Вход"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/button_style"
+        app:backgroundTint="@color/defaultColor" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

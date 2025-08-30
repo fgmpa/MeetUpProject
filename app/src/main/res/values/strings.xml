@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">MeetUpProject</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="today_butt">Сегодня</string>
+    <string name="room_butt">Комнаты</string>
+    <string name="my_events_butt">Мои события</string>
+    <string name="add_butt">Добавить</string>
+    <string name="del_butt">Удалить</string>
+    <string name="done_butt">Готово</string>
+    <string name="calendar_mode_string">Календарь</string>
+    <string name="toolbar_room">Комнаты</string>
+    <string name="toolbar_event">MeetUp</string>
+    <string name="calendar_view_text">Выберите дату</string>
+</resources>
