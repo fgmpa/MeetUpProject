@@ -31,14 +31,14 @@ class CalendarFragment : Fragment(R.layout.fragment_calendar) {
             override fun onDayClick(eventDay: EventDay) {
                 val clickedDayCalendar: Calendar = eventDay.calendar
 
-                // Приводим дату к формату yyyy-MM-dd
+
                 val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 val dateOnly = sdf.format(clickedDayCalendar.time)
 
-                // Сохраняем выбранную дату в ViewModel
+
                 viewModel.selectDate(dateOnly)
 
-                // Переход на MeetingListFragment
+
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.container_view, MeetingListFragment())
                     .addToBackStack(null)

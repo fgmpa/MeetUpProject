@@ -100,7 +100,6 @@ class EventValuesActivity: AppCompatActivity() {
                             userAutoComplete.setSelection(userAutoComplete.text.length)
                         }
 
-                        // удаляем выбранного из списка доступных
                         usersNames.remove(selected)
                         adapterUser.clear()
                         adapterUser.addAll(usersNames)

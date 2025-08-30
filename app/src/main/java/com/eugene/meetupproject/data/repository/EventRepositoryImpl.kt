@@ -42,19 +42,19 @@ class EventRepositoryImpl @Inject constructor(
             val dayList = firestore.collection("events").get().await()
             val allEvents = dayList.documents.map { it.toEvent() }
 
-            // Преобразуем выбранную дату в LocalDate
+
             val selectedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
             val events = allEvents.filter { event ->
-                // Парсим start и end как LocalDateTime
+
                 val startDateTime = LocalDateTime.parse(event.dateStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
                 val endDateTime = LocalDateTime.parse(event.dateEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 
-                // Получаем LocalDate для сравнения только по дню
+
                 val startDate = startDateTime.toLocalDate()
                 val endDate = endDateTime.toLocalDate()
 
-                // Проверяем, попадает ли выбранная дата в интервал включительно
+
                 (selectedDate.isEqual(startDate) || selectedDate.isAfter(startDate)) &&
                         (selectedDate.isEqual(endDate) || selectedDate.isBefore(endDate))
             }
@@ -66,7 +66,6 @@ class EventRepositoryImpl @Inject constructor(
     }
     override suspend fun getEventsForUser(userId: String): Result<List<Event>> {
         return try {
-            // 1. Берём имя пользователя по userId
             val userDoc = firestore.collection("users")
                 .document(userId)
                 .get().await()
@@ -74,7 +73,6 @@ class EventRepositoryImpl @Inject constructor(
             val userName = userDoc.getString("login")
                 ?: return Result.failure(Exception("User name not found"))
 
-            // 2. Ищем события, где contributors содержит это имя
             val eventsSnapshot = firestore.collection("events")
                 .whereArrayContains("contributors", userName)
                 .get().await()
