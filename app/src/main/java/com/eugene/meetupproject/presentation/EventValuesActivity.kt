@@ -26,23 +26,21 @@ import com.google.firebase.auth.FirebaseAuth
 import java.util.Calendar
 import javax.inject.Inject
 
-class EventValuesActivity: AppCompatActivity() {
+class EventValuesActivity : AppCompatActivity() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     private val viewModelEvent: EventViewModel by viewModels { viewModelFactory }
     private val viewModelRoom: RoomViewModel by viewModels { viewModelFactory }
-
     private var curEvent: Event? = null
-    private val selectedUsers = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApp).appComponent.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_event_values)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root)) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
@@ -56,16 +54,21 @@ class EventValuesActivity: AppCompatActivity() {
         val delButton = findViewById<Button>(R.id.event_delete_button)
 
         val eventId = intent.getStringExtra("eventId")
+
         viewModelEvent.error.observe(this) { message ->
             message?.let {
-                Log.d("LiveDataDebug", "Error value: $message")
+                Log.d("LiveDataDebug", "Error value: $it")
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
             }
         }
-       // viewModelEvent.clearError()
+
         if (eventId != null) {
-            delButton.visibility = View.VISIBLE
+            delButton.visibility = Button.VISIBLE
+            eventDateStartEdit.setOnClickListener { dateOperation(eventDateStartEdit) }
+            eventDateEndEdit.setOnClickListener { dateOperation(eventDateEndEdit) }
+            val selectedUsers = mutableListOf<String>()
             viewModelEvent.events.observe(this) { events ->
+                selectedUsers.clear()
                 curEvent = events.find { it.id == eventId }
                 curEvent?.let { event ->
                     eventNameEdit.setText(event.name)
@@ -73,144 +76,110 @@ class EventValuesActivity: AppCompatActivity() {
                     eventDateEndEdit.setText(event.dateEnd)
 
                     val roomNames = viewModelRoom.rooms.value?.map { it.name } ?: emptyList()
-
-                    val adapterRoom = ArrayAdapter(
-                        this,
-                        android.R.layout.simple_dropdown_item_1line,
-                        roomNames
-                    )
+                    val adapterRoom = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, roomNames)
                     roomAutoComplete.setAdapter(adapterRoom)
                     roomAutoComplete.setText(event.roomId, false)
-                    val usersNames = viewModelEvent.users.value?.map { it.second }?.toMutableList() ?: mutableListOf()
 
-                    val adapterUser = ArrayAdapter(
-                        this,
-                        android.R.layout.simple_dropdown_item_1line,
-                        usersNames
-                    )
+                    val usersNames = viewModelEvent.users.value?.map { it.second }?.toMutableList() ?: mutableListOf()
+                    val adapterUser = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, usersNames)
                     userAutoComplete.setAdapter(adapterUser)
                     userAutoComplete.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
 
+                    roomAutoComplete.setOnClickListener { roomAutoComplete.showDropDown() }
+                    userAutoComplete.setOnClickListener { userAutoComplete.showDropDown() }
+
                     userAutoComplete.setOnItemClickListener { parent, _, position, _ ->
                         val selected = parent.getItemAtPosition(position) as String
-
                         if (!selectedUsers.contains(selected)) {
                             selectedUsers.add(selected)
                             userAutoComplete.setText(selectedUsers.joinToString(", ") + ", ")
                             userAutoComplete.setSelection(userAutoComplete.text.length)
                         }
-
                         usersNames.remove(selected)
                         adapterUser.clear()
                         adapterUser.addAll(usersNames)
                         adapterUser.notifyDataSetChanged()
                     }
                     userAutoComplete.dismissDropDown()
+                    userAutoComplete.setText(event.contributors.joinToString(", "))
                 }
             }
+
             addButton.setOnClickListener {
                 val name = eventNameEdit.text.toString()
                 val dateStart = eventDateStartEdit.text.toString()
                 val dateEnd = eventDateEndEdit.text.toString()
                 val roomId = roomAutoComplete.text.toString()
-                val contributorsId = selectedUsers.toList()
+                val contributorsId = if (selectedUsers.isNotEmpty()) {
+                    selectedUsers.toList()
+                } else {
+                    userAutoComplete.text.toString()
+                        .split(",")
+                        .map { it.trim() }
+                        .filter { it.isNotBlank() }
+                }
                 val firebaseUser = FirebaseAuth.getInstance().currentUser
                 if (firebaseUser == null) {
                     Toast.makeText(this, "Ошибка: пользователь не авторизован", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-
                 val ownerId = firebaseUser.uid
-
-                if (eventId != null) {
-                    val updatedEvent = Event(
-                        id = eventId,
-                        name = name,
-                        dateStart = dateStart,
-                        dateEnd = dateEnd,
-                        contributors = contributorsId,
-                        roomId = roomId,
-                        ownerId = curEvent?.ownerId ?: ownerId // сохраняем старого владельца, если был
-                    )
-                    viewModelEvent.updateEventWithValidation(updatedEvent)
-                }
-
+                val updatedEvent = Event(
+                    id = eventId,
+                    name = name,
+                    dateStart = dateStart,
+                    dateEnd = dateEnd,
+                    contributors = contributorsId,
+                    roomId = roomId,
+                    ownerId = curEvent?.ownerId ?: ownerId
+                )
+                viewModelEvent.updateEventWithValidation(updatedEvent)
                 startActivity(Intent(this, EventListActivity::class.java))
             }
+
             delButton.setOnClickListener {
                 viewModelEvent.delete(eventId)
                 startActivity(Intent(this, EventListActivity::class.java))
             }
 
-
-
         } else {
-        eventDateStartEdit.setOnClickListener {
-            dateOperation(eventDateStartEdit)
-        }
-        eventDateEndEdit.setOnClickListener {
-            dateOperation(eventDateEndEdit)
-        }
+            eventDateStartEdit.setOnClickListener { dateOperation(eventDateStartEdit) }
+            eventDateEndEdit.setOnClickListener { dateOperation(eventDateEndEdit) }
 
-        viewModelRoom.loadRooms()
-        viewModelEvent.loadUsers()
+            viewModelRoom.loadRooms()
+            viewModelEvent.loadUsers()
 
-        viewModelRoom.rooms.observe(this) { rooms ->
-            val roomNames = rooms.map { it.name}
-            val adapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_dropdown_item_1line,
-                roomNames
-            )
-            roomAutoComplete.setAdapter(adapter)
-        }
-        viewModelEvent.users.observe(this) { users ->
-            val usersNames = users.map { it.second }.toMutableList()
-            val adapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_dropdown_item_1line,
-                usersNames
-            )
-            userAutoComplete.setAdapter(adapter)
-            userAutoComplete.setOnItemClickListener { parent, _, position, _ ->
-                val selected = parent.getItemAtPosition(position) as String
-                if (!selectedUsers.contains(selected)) {
-                    selectedUsers.add(selected)
-                    userAutoComplete.setText(selectedUsers.joinToString(", ") + ", ")
-                    userAutoComplete.setSelection(userAutoComplete.text.length)
-                    // убираем выбранного
-                    usersNames.remove(selected)
-                    adapter.clear()
-                    adapter.addAll(usersNames)
-                    adapter.notifyDataSetChanged()
-                }
-                userAutoComplete.dismissDropDown()
+            viewModelRoom.rooms.observe(this) { rooms ->
+                val roomNames = rooms.map { it.name }
+                val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, roomNames)
+                roomAutoComplete.setAdapter(adapter)
+            }
+
+            viewModelEvent.users.observe(this) { users ->
+                val usersNames = users.map { it.second }
+                val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, usersNames)
+                userAutoComplete.setAdapter(adapter)
+            }
+
+            userAutoComplete.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+            roomAutoComplete.setOnClickListener { roomAutoComplete.showDropDown() }
+            userAutoComplete.setOnClickListener { userAutoComplete.showDropDown() }
+
+            addButton.setOnClickListener {
+                val name = eventNameEdit.text.toString()
+                val dateStart = eventDateStartEdit.text.toString()
+                val dateEnd = eventDateEndEdit.text.toString()
+                val roomId = roomAutoComplete.text.toString()
+                val contributorsId = userAutoComplete.text.toString()
+                    .split(",")
+                    .map { it.trim() }
+                    .filter { it.isNotBlank() }
+
+                viewModelEvent.addEventWithValidation(name, dateStart, dateEnd, roomId, contributorsId)
+                startActivity(Intent(this, EventListActivity::class.java))
             }
         }
-        userAutoComplete.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
-        roomAutoComplete.setOnClickListener {
-            roomAutoComplete.showDropDown()
-        }
-        userAutoComplete.setOnClickListener {
-            userAutoComplete.showDropDown()
-        }
-
-        addButton.setOnClickListener {
-            val name = eventNameEdit.text.toString()
-            val dateStart = eventDateStartEdit.text.toString()
-            val dateEnd = eventDateEndEdit.text.toString()
-            val roomId =  roomAutoComplete.text.toString()
-            val contributorsId =  selectedUsers.toList()
-
-            viewModelEvent.addEventWithValidation(name,dateStart,dateEnd,roomId,contributorsId)
-
-
-            startActivity(Intent(this, EventListActivity::class.java))
-
-            }
-            }
-        }
-
+    }
 
     private fun dateOperation(eventDateEdit: EditText) {
         val calendar = Calendar.getInstance()
@@ -220,10 +189,7 @@ class EventValuesActivity: AppCompatActivity() {
                 val timePicker = TimePickerDialog(
                     this,
                     { _, hour, minute ->
-                        val selected = String.format(
-                            "%04d-%02d-%02d %02d:%02d",
-                            year, month + 1, dayOfMonth, hour, minute
-                        )
+                        val selected = String.format("%04d-%02d-%02d %02d:%02d", year, month + 1, dayOfMonth, hour, minute)
                         eventDateEdit.setText(selected)
                     },
                     calendar.get(Calendar.HOUR_OF_DAY),
